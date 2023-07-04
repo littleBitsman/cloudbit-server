@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/littleBitsman/cloudbit-js.git"
+    "url": "git+https://github.com/littleBitsman/cloudbit-server.js.git"
   },
   "author": "littleBitsman",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/littleBitsman/cloudbit-js/issues"
+    "url": "https://github.com/littleBitsman/cloudbit-server.js"
   },
-  "homepage": "https://github.com/littleBitsman/cloudbit-js#readme",
+  "homepage": "https://github.com/littleBitsman/cloudbit-server.js#readme",
   "dependencies": {
     "ws": "^8.13.0"
   },
