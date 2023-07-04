@@ -24,6 +24,12 @@ export class CloudBit extends EventEmitter {
         return await this.sendEvent("OUTPUT" /* CloudBitEvents.OUTPUT */, value);
     }
     // Events
+    /**
+     * A function to listen to the events that the CloudBit client may emit.
+     * Note: If you listen to the Heartbeat event, do NOT send anything over the Socket connection.
+     * @param event Event to listen to. Should be `INPUT`, `OUTPUT`, or `Heartbeat`.
+     * @param cb Event listener callback.
+     */
     on(event, cb) {
         super.on(event, cb);
         return this;

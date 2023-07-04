@@ -1,18 +1,14 @@
 import { EventEmitter } from 'node:events'
 import * as ws from 'ws'
-import * as qs from 'querystring'
-import * as url from 'url'
 
 export const enum CloudBitEvents {
     INPUT = 'INPUT',
     OUTPUT = 'OUTPUT',
-    HEARTBEAT = 'Heartbeat',
-    HEARTBEAT_ACK = 'HeartbeatAck',
-    HELLO = 'Hello'
+    HEARTBEAT = 'Heartbeat'
 }
 export class CloudBit extends EventEmitter {
     device_id: string
-    socket: ws.WebSocket
+    private socket: ws.WebSocket
     inputValue: number = 0
     constructor(device_id: string, socket: ws.WebSocket) {
         super()
@@ -35,6 +31,12 @@ export class CloudBit extends EventEmitter {
     }
 
     // Events
+    /**
+     * A function to listen to the events that the CloudBit client may emit.
+     * Note: If you listen to the Heartbeat event, do NOT send anything over the Socket connection.
+     * @param event Event to listen to. Should be `INPUT`, `OUTPUT`, or `Heartbeat`.
+     * @param cb Event listener callback.
+     */
     on(event: CloudBitEvents, cb: (this: CloudBit, data: any) => void): this {
         super.on(event, cb)
         return this

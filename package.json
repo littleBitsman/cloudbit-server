@@ -1,21 +1,21 @@
 {
-  "name": "cloudbit-server.js",
+  "name": "cloudbit-server",
   "version": "0.1.0-alpha",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/index",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/littleBitsman/cloudbit-server.js.git"
+    "url": "git+https://github.com/littleBitsman/cloudbit-server.git"
   },
   "author": "littleBitsman",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/littleBitsman/cloudbit-server.js"
+    "url": "https://github.com/littleBitsman/cloudbit-server"
   },
-  "homepage": "https://github.com/littleBitsman/cloudbit-server.js#readme",
+  "homepage": "https://github.com/littleBitsman/cloudbit-server#readme",
   "dependencies": {
     "ws": "^8.13.0"
   },
