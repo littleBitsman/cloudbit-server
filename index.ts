@@ -1,16 +1,19 @@
 import { EventEmitter } from 'node:events'
+import * as ws from 'ws'
+import * as qs from 'querystring'
+import * as url from 'url'
 
-enum CloudBitEvents {
+export const enum CloudBitEvents {
     INPUT = 'INPUT',
     OUTPUT = 'OUTPUT',
     HEARTBEAT = 'Heartbeat',
     HEARTBEAT_ACK = 'HeartbeatAck',
     HELLO = 'Hello'
 }
-class CloudBit extends EventEmitter {
+export class CloudBit extends EventEmitter {
     device_id: string
-    socket: WebSocket
-    constructor (device_id: string, socket: WebSocket) {
+    socket: ws.WebSocket
+    constructor (device_id: string, socket: ws.WebSocket) {
         super()
         this.device_id = device_id
         this.socket = socket
@@ -29,5 +32,30 @@ class CloudBit extends EventEmitter {
     on(event: CloudBitEvents, cb: (this: CloudBit, data: any) => void): this {
         super.on(event, cb)
         return this
+    }
+}
+
+
+
+export class Server extends ws.Server {
+    cloudbits: Set<CloudBit>
+    constructor (options?: ws.ServerOptions, callback?: () => void) {
+        super(options, callback)
+        this.on('connection', (socket, request) => {
+            const device_id = new URL(socket.url).searchParams.get('device_id')
+            if (device_id == null) return socket.close(1007)
+            if (this.getCloudBitByDeviceId(device_id)) return socket.close(1007)
+            const cb = new CloudBit(device_id, socket)
+            this.cloudbits.add(cb)
+        })
+    }
+    getCloudBitByDeviceId(deviceId: string): CloudBit | void {
+        var cloudbit: CloudBit | void = undefined
+        this.cloudbits.forEach((value) => {
+            if (value.device_id == deviceId && cloudbit == undefined) {
+                cloudbit = value
+            }
+        })
+        return cloudbit
     }
 }

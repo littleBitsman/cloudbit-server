@@ -1,1 +1,1 @@
-# cloudbit-js
+# cloudbit-server.js
