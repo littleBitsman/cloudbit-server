@@ -2,7 +2,7 @@
   "name": "cloudbit-server.js",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,5 +18,9 @@
   "homepage": "https://github.com/littleBitsman/cloudbit-js#readme",
   "dependencies": {
     "ws": "^8.13.0"
+  },
+  "typings": "dist/index.d.ts",
+  "devDependencies": {
+    "typescript": "^5.1.6"
   }
 }
