@@ -13,20 +13,27 @@ export const enum CloudBitEvents {
 export class CloudBit extends EventEmitter {
     device_id: string
     socket: ws.WebSocket
+    inputValue: number = 0
     constructor(device_id: string, socket: ws.WebSocket) {
         super()
         this.device_id = device_id
         this.socket = socket
     }
-    async sendEvent(event: CloudBitEvents, ...data: any) {
+    getInputValue(): number { return this.inputValue }
+    private async sendEvent(event: CloudBitEvents, data: number): Promise<void> {
         return new Promise((resolve, reject) => {
             if (event != CloudBitEvents.OUTPUT) reject(`Cannot send a ${event} event.`)
             this.emit(event, data)
             if (this.socket.readyState == 1) {
-                resolve(this.socket.send(data))
+                resolve(this.socket.send(JSON.stringify({ type: event, value: data })))
             } else reject('Socket is not open.')
         })
     }
+
+    async setOutput(value: number) {
+        return await this.sendEvent(CloudBitEvents.OUTPUT, value)
+    }
+
     // Events
     on(event: CloudBitEvents, cb: (this: CloudBit, data: any) => void): this {
         super.on(event, cb)

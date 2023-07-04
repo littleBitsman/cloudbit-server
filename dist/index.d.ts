@@ -11,8 +11,11 @@ export declare const enum CloudBitEvents {
 export declare class CloudBit extends EventEmitter {
     device_id: string;
     socket: ws.WebSocket;
+    inputValue: number;
     constructor(device_id: string, socket: ws.WebSocket);
-    sendEvent(event: CloudBitEvents, ...data: any): Promise<unknown>;
+    getInputValue(): number;
+    private sendEvent;
+    setOutput(value: number): Promise<void>;
     on(event: CloudBitEvents, cb: (this: CloudBit, data: any) => void): this;
 }
 export declare class Server extends ws.Server {
