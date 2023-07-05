@@ -1,5 +1,5 @@
-import { EventEmitter } from 'node:events';
 import * as ws from 'ws';
+import { EventEmitter } from 'node:events';
 export class CloudBit extends EventEmitter {
     constructor(device_id, socket) {
         super();

@@ -1,6 +1,6 @@
 /// <reference types="node" />
-import { EventEmitter } from 'node:events';
 import * as ws from 'ws';
+import { EventEmitter } from 'node:events';
 export declare const enum CloudBitEvents {
     INPUT = "INPUT",
     OUTPUT = "OUTPUT",
