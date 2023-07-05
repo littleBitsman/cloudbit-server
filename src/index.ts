@@ -43,8 +43,6 @@ export class CloudBit extends EventEmitter {
     }
 }
 
-
-
 export class Server extends ws.Server {
     cloudbits: Set<CloudBit> = new Set<CloudBit>()
     constructor(options?: ws.ServerOptions, callback?: () => void) {
