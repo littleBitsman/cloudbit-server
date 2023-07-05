@@ -5,6 +5,7 @@ export class CloudBit extends EventEmitter {
     device_id: string
     private socket: ws.WebSocket
     inputValue: number = 0
+    private events = [ 'input', 'output', 'heartbeat' ]
     constructor(device_id: string, socket: ws.WebSocket) {
         super()
         this.device_id = device_id
@@ -28,7 +29,13 @@ export class CloudBit extends EventEmitter {
      * @param cb Event listener callback.
      */
     on(event: 'input' | 'output' | 'heartbeat', cb: (this: CloudBit, data: any) => void): this {
+        if (!this.events.includes(event)) throw new Error('Invalid event name.');
         super.on(event, cb)
+        return this
+    }
+    once(event: 'input' | 'output' | 'heartbeat', cb: (this: CloudBit, data: any) => void): this {
+        if (!this.events.includes(event)) throw new Error('Invalid event name.');
+        super.once(event, cb)
         return this
     }
 }
