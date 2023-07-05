@@ -1,11 +1,6 @@
 import * as ws from 'ws'
 import { EventEmitter } from 'node:events';
 
-export const enum CloudBitEvents {
-    INPUT = 'INPUT',
-    OUTPUT = 'OUTPUT',
-    HEARTBEAT = 'Heartbeat'
-}
 export class CloudBit extends EventEmitter {
     device_id: string
     private socket: ws.WebSocket
@@ -16,18 +11,13 @@ export class CloudBit extends EventEmitter {
         this.socket = socket
     }
     getInputValue(): number { return this.inputValue }
-    private async sendEvent(event: CloudBitEvents, data: number): Promise<void> {
-        return new Promise((resolve, reject) => {
-            if (event != CloudBitEvents.OUTPUT) reject(`Cannot send a ${event} event.`)
-            this.emit(event, data)
-            if (this.socket.readyState == 1) {
-                resolve(this.socket.send(JSON.stringify({ type: event, value: data })))
-            } else reject('Socket is not open.')
-        })
-    }
 
     async setOutput(value: number) {
-        return await this.sendEvent(CloudBitEvents.OUTPUT, value)
+        return new Promise((resolve, reject) => {
+            this.emit('output', value)
+            if (this.socket.readyState == 1) resolve(this.socket.send(JSON.stringify({ type: 'output', value: value })));
+            else reject('Socket is not open.')
+        })
     }
 
     // Events
@@ -37,7 +27,7 @@ export class CloudBit extends EventEmitter {
      * @param event Event to listen to. Should be `INPUT`, `OUTPUT`, or `Heartbeat`.
      * @param cb Event listener callback.
      */
-    on(event: CloudBitEvents, cb: (this: CloudBit, data: any) => void): this {
+    on(event: 'input' | 'output' | 'heartbeat', cb: (this: CloudBit, data: any) => void): this {
         super.on(event, cb)
         return this
     }
@@ -49,10 +39,11 @@ export class Server extends ws.Server {
         super(options, callback)
         this.on('connection', (socket, request) => {
             const device_id = new URL(socket.url).searchParams.get('device_id')
-            if (device_id == null) return socket.close(1007)
-            if (this.getCloudBitByDeviceId(device_id)) return socket.close(1007)
+            if (device_id == null) return socket.close(4002)
+            if (this.getCloudBitByDeviceId(device_id)) return socket.close(4002)
             const cb = new CloudBit(device_id, socket)
             this.cloudbits.add(cb)
+            setTimeout(() => socket.send(JSON.stringify({ type: 'Hello', heartbeat_interval: 30000 })), 3000)
         })
     }
     getCloudBitByDeviceId(deviceId: string): CloudBit | void {

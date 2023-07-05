@@ -8,20 +8,14 @@ export class CloudBit extends EventEmitter {
         this.socket = socket;
     }
     getInputValue() { return this.inputValue; }
-    async sendEvent(event, data) {
+    async setOutput(value) {
         return new Promise((resolve, reject) => {
-            if (event != "OUTPUT" /* CloudBitEvents.OUTPUT */)
-                reject(`Cannot send a ${event} event.`);
-            this.emit(event, data);
-            if (this.socket.readyState == 1) {
-                resolve(this.socket.send(JSON.stringify({ type: event, value: data })));
-            }
+            this.emit('output', value);
+            if (this.socket.readyState == 1)
+                resolve(this.socket.send(JSON.stringify({ type: 'output', value: value })));
             else
                 reject('Socket is not open.');
         });
-    }
-    async setOutput(value) {
-        return await this.sendEvent("OUTPUT" /* CloudBitEvents.OUTPUT */, value);
     }
     // Events
     /**
@@ -42,11 +36,12 @@ export class Server extends ws.Server {
         this.on('connection', (socket, request) => {
             const device_id = new URL(socket.url).searchParams.get('device_id');
             if (device_id == null)
-                return socket.close(1007);
+                return socket.close(4002);
             if (this.getCloudBitByDeviceId(device_id))
-                return socket.close(1007);
+                return socket.close(4002);
             const cb = new CloudBit(device_id, socket);
             this.cloudbits.add(cb);
+            setTimeout(() => socket.send(JSON.stringify({ type: 'Hello', heartbeat_interval: 30000 })), 3000);
         });
     }
     getCloudBitByDeviceId(deviceId) {
