@@ -5,6 +5,7 @@ export declare class CloudBit extends EventEmitter {
     device_id: string;
     private socket;
     inputValue: number;
+    private events;
     constructor(device_id: string, socket: ws.WebSocket);
     getInputValue(): number;
     setOutput(value: number): Promise<unknown>;
@@ -15,6 +16,7 @@ export declare class CloudBit extends EventEmitter {
      * @param cb Event listener callback.
      */
     on(event: 'input' | 'output' | 'heartbeat', cb: (this: CloudBit, data: any) => void): this;
+    once(event: 'input' | 'output' | 'heartbeat', cb: (this: CloudBit, data: any) => void): this;
 }
 export declare class Server extends ws.Server {
     cloudbits: Set<CloudBit>;
