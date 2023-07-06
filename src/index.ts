@@ -104,8 +104,8 @@ export class Server extends ws.Server {
      */
     constructor(options?: ws.ServerOptions, callback?: () => void) {
         super(options, callback)
-        this.on('connection', (socket, request) => {
-            const device_id = new URL(socket.url).searchParams.get('device_id')
+        this.on('connection', (socket, req) => {
+            const device_id = new URL(`wss://localhost:${req.socket.localPort}${req.url}`).searchParams.get('device_id')
             if (device_id == null) return socket.close(4002)
             if (this.getCloudBitByDeviceId(device_id)) return socket.close(4002)
             const cb = new CloudBit(device_id, socket)
@@ -158,7 +158,9 @@ export class Server extends ws.Server {
     static createServer(port: number = 3000): Server {
         const server = http.createServer()
         const ws = new this({ server: server })
-        server.listen(port)
+        server.listen(port, () => {
+            console.log(`[INFO] Started CloudBit server over HTTP on port ${port}.`)
+        })
         return ws
     }
     /**
@@ -177,7 +179,10 @@ export class Server extends ws.Server {
      */
     static createHttpsServer(options: ServerOptions): Server {
         const server = https.createServer(options)
-        server.listen(options.port | 3000)
-        return new this({ server: server })
+        const ws = new this({ server: server })
+        server.listen(options.port | 3000, () => {
+            console.log(`[INFO] Started CloudBit server over HTTPS on port ${options.port | 3000}`)
+        })
+        return ws
     }
 }
