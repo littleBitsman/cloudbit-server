@@ -1,4 +1,6 @@
 import * as ws from 'ws';
+import * as http from 'http';
+import * as https from 'https';
 import { EventEmitter } from 'node:events';
 export class CloudBit extends EventEmitter {
     constructor(device_id, socket) {
@@ -50,7 +52,9 @@ export class Server extends ws.Server {
                 return socket.close(4002);
             const cb = new CloudBit(device_id, socket);
             this.cloudbits.add(cb);
-            setTimeout(() => socket.send(JSON.stringify({ type: 'Hello', heartbeat_interval: 30000 })), 3000);
+            socket.once('open', () => {
+                socket.send(JSON.stringify({ type: 'Hello', heartbeat_interval: 30000 }));
+            });
         });
     }
     getCloudBitByDeviceId(deviceId) {
@@ -61,5 +65,18 @@ export class Server extends ws.Server {
             }
         });
         return cloudbit;
+    }
+    static createServer(port = 3000) {
+        const server = http.createServer();
+        server.listen(port);
+        return new this({ server: server });
+    }
+    static createSecureServer(key, cert, port = 3000) {
+        const server = https.createServer({
+            key: key,
+            cert: cert
+        });
+        server.listen(port);
+        return new this({ server: server });
     }
 }

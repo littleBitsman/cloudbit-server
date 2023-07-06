@@ -19,7 +19,9 @@ export declare class CloudBit extends EventEmitter {
     once(event: 'input' | 'output' | 'heartbeat', cb: (this: CloudBit, data: any) => void): this;
 }
 export declare class Server extends ws.Server {
-    cloudbits: Set<CloudBit>;
+    readonly cloudbits: Set<CloudBit>;
     constructor(options?: ws.ServerOptions, callback?: () => void);
     getCloudBitByDeviceId(deviceId: string): CloudBit | void;
+    static createServer(port?: number): Server;
+    static createSecureServer(key: string, cert: string, port?: number): Server;
 }
