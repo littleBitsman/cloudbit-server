@@ -71,7 +71,7 @@ export class Server extends ws.Server {
         server.listen(port);
         return new this({ server: server });
     }
-    static createSecureServer(key, cert, port = 3000) {
+    static createHttpsServer(key, cert, port = 3000) {
         const server = https.createServer({
             key: key,
             cert: cert

@@ -23,5 +23,5 @@ export declare class Server extends ws.Server {
     constructor(options?: ws.ServerOptions, callback?: () => void);
     getCloudBitByDeviceId(deviceId: string): CloudBit | void;
     static createServer(port?: number): Server;
-    static createSecureServer(key: string, cert: string, port?: number): Server;
+    static createHttpsServer(key: string, cert: string, port?: number): Server;
 }
