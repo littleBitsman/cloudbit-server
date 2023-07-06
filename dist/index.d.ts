@@ -6,7 +6,7 @@ import { EventEmitter } from 'node:events';
 interface ServerOptions extends https.ServerOptions {
     port: number;
 }
-export default function (options: ServerOptions | undefined): Server;
+export declare function createServer(options: ServerOptions | undefined): Server;
 export declare class CloudBit extends EventEmitter {
     device_id: string;
     private socket;

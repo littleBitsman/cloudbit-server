@@ -7,7 +7,9 @@ interface ServerOptions extends https.ServerOptions {
     port: number
 }
 
-export default function(options: ServerOptions | undefined): Server {
+
+
+export function createServer(options: ServerOptions | undefined): Server {
     if (!options) {
         return Server.createServer(3000)
     } else if (options.key && options.cert) {

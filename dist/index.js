@@ -2,7 +2,7 @@ import * as ws from 'ws';
 import * as http from 'http';
 import * as https from 'https';
 import { EventEmitter } from 'node:events';
-export default function (options) {
+export function createServer(options) {
     if (!options) {
         return Server.createServer(3000);
     }
