@@ -152,7 +152,7 @@ export class Server extends ws.Server {
         return cloudbit
     }
 
-    getCloudBitBySocket(socket: ws.WebSocket) {
+    getCloudBitBySocket(socket: ws.WebSocket): CloudBit | void {
         var cloudbit: CloudBit | void = undefined
         this.cloudbits.forEach((value) => {
             if (value.socketEquals(socket) && cloudbit == undefined) {

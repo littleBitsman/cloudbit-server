@@ -78,7 +78,7 @@ export declare class Server extends ws.Server {
      * @returns A CloudBit object if it exists as a client of the web socket server. Otherwise, undefined.
      */
     getCloudBitByDeviceId(deviceId: string): CloudBit | void;
-    getCloudBitBySocket(socket: ws.WebSocket): void;
+    getCloudBitBySocket(socket: ws.WebSocket): CloudBit | void;
     /**
      * The recommended way to create a simple HTTP-based web socket server for CloudBits to connect to.
      * @param port The port number for the server to listen on. If none is specified, defaults to 3000.
