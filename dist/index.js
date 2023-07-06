@@ -105,8 +105,8 @@ class Server extends ws.Server {
     constructor(options, callback) {
         super(options, callback);
         this.cloudbits = new Set();
-        this.on('connection', (socket, request) => {
-            const device_id = new URL(socket.url).searchParams.get('device_id');
+        this.on('connection', (socket, req) => {
+            const device_id = new URL(`wss://localhost:${req.socket.localPort}${req.url}`).searchParams.get('device_id');
             if (device_id == null)
                 return socket.close(4002);
             if (this.getCloudBitByDeviceId(device_id))
@@ -161,7 +161,9 @@ class Server extends ws.Server {
     static createServer(port = 3000) {
         const server = http.createServer();
         const ws = new this({ server: server });
-        server.listen(port);
+        server.listen(port, () => {
+            console.log(`[INFO] Started CloudBit server over HTTP on port ${port}.`);
+        });
         return ws;
     }
     /**
@@ -180,8 +182,11 @@ class Server extends ws.Server {
      */
     static createHttpsServer(options) {
         const server = https.createServer(options);
-        server.listen(options.port | 3000);
-        return new this({ server: server });
+        const ws = new this({ server: server });
+        server.listen(options.port | 3000, () => {
+            console.log(`[INFO] Started CloudBit server over HTTPS on port ${options.port | 3000}`);
+        });
+        return ws;
     }
 }
 exports.Server = Server;
