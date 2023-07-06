@@ -3,10 +3,26 @@ import * as http from 'http'
 import * as https from 'https'
 import { EventEmitter } from 'node:events';
 
+interface ServerOptions extends https.ServerOptions {
+    port: number
+}
+
+export default function(options: ServerOptions | undefined): Server {
+    if (!options) {
+        return Server.createServer(3000)
+    } else if (options.key && options.cert) {
+        return Server.createHttpsServer(options)
+    } else if (!isNaN(options.port)) {
+        return Server.createServer(options.port)
+    } else {
+        return Server.createServer(3000)
+    }
+}
+
 export class CloudBit extends EventEmitter {
     device_id: string
     private socket: ws.WebSocket
-    inputValue: number = 0
+    private inputValue: number = 0
     private events = [ 'input', 'output', 'heartbeat' ]
     constructor(device_id: string, socket: ws.WebSocket) {
         super()
@@ -14,7 +30,13 @@ export class CloudBit extends EventEmitter {
         this.socket = socket
     }
     getInputValue(): number { return this.inputValue }
-
+    /**
+     * This function exists to allow for changes from the physical CloudBit input to be mirrored here. Do not use this.
+     * @param value
+     */
+    setInput(value: number) {
+        this.inputValue = value
+    }
     async setOutput(value: number) {
         return new Promise((resolve, reject) => {
             this.emit('output', value)
@@ -27,7 +49,7 @@ export class CloudBit extends EventEmitter {
     /**
      * A function to listen to the events that the CloudBit client may emit.
      * Note: If you listen to the Heartbeat event, do NOT send anything over the Socket connection.
-     * @param event Event to listen to. Should be `INPUT`, `OUTPUT`, or `Heartbeat`.
+     * @param event Event to listen to.
      * @param cb Event listener callback.
      */
     on(event: 'input' | 'output' | 'heartbeat', cb: (this: CloudBit, data: any) => void): this {
@@ -55,6 +77,20 @@ export class Server extends ws.Server {
             socket.once('open', () => {
                 socket.send(JSON.stringify({ type: 'Hello', heartbeat_interval: 30000 }))
             })
+            socket.on('message', (data) => {
+                try {
+                    const json = JSON.parse(data.toString('utf-8'))
+                    switch (json.type) {
+                        case 'input': 
+                            if (!isNaN(json.value)) {
+                                cb.setInput(json.value)
+                            }
+                            break
+                    }
+                } catch (err) {
+
+                }
+            })
         })
     }
     getCloudBitByDeviceId(deviceId: string): CloudBit | void {
@@ -71,12 +107,9 @@ export class Server extends ws.Server {
         server.listen(port)        
         return new this({ server: server })
     }
-    static createHttpsServer(key: string, cert: string, port: number = 3000): Server {
-        const server = https.createServer({
-            key: key,
-            cert: cert
-        })
-        server.listen(port)       
+    static createHttpsServer(options: ServerOptions): Server {
+        const server = https.createServer(options)
+        server.listen(options.port | 3000)
         return new this({ server: server })
     }
 }
