@@ -157,8 +157,9 @@ export class Server extends ws.Server {
      */
     static createServer(port: number = 3000): Server {
         const server = http.createServer()
-        server.listen(port)        
-        return new this({ server: server })
+        const ws = new this({ server: server })
+        server.listen(port)
+        return ws
     }
     /**
      * The recommended way to create a simple HTTPS-based web socket server for CloudBits to connect to.

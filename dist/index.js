@@ -160,8 +160,9 @@ class Server extends ws.Server {
      */
     static createServer(port = 3000) {
         const server = http.createServer();
+        const ws = new this({ server: server });
         server.listen(port);
-        return new this({ server: server });
+        return ws;
     }
     /**
      * The recommended way to create a simple HTTPS-based web socket server for CloudBits to connect to.
