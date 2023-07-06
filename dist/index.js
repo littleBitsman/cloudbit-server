@@ -1,13 +1,16 @@
-import * as ws from 'ws';
-import * as http from 'http';
-import * as https from 'https';
-import { EventEmitter } from 'node:events';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Server = exports.CloudBit = exports.createServer = void 0;
+const ws = require("ws");
+const http = require("http");
+const https = require("https");
+const node_events_1 = require("node:events");
 /**
  * The top level function to create a server quickly. If you want to create an HTTPS server, it is recommended to do so with `Server.createHttpsServer()`.
  * @param options Server options with a port option. If you do not specify a port or options, an HTTP server will be created. If the `options.key` and `options.cert` fields exist, an HTTPS server will be created.
  * @returns A Server object.
  */
-export function createServer(options) {
+function createServer(options) {
     if (!options) {
         return Server.createServer(3000);
     }
@@ -21,11 +24,12 @@ export function createServer(options) {
         return Server.createServer(3000);
     }
 }
+exports.createServer = createServer;
 /**
  * The CloudBit class that represents a CloudBit connected to the web socket server.
  * @class
  */
-export class CloudBit extends EventEmitter {
+class CloudBit extends node_events_1.EventEmitter {
     /**
      * The CloudBit constructor. Do not use this since the Server class already instantiates one for every new client on the Web Socket.
      */
@@ -89,11 +93,12 @@ export class CloudBit extends EventEmitter {
         return this;
     }
 }
+exports.CloudBit = CloudBit;
 /**
  * The CloudBit Server class.
  * @class
  */
-export class Server extends ws.Server {
+class Server extends ws.Server {
     /**
      * The constructor for the Server class. It is recommended to call `Server.createServer()` or `Server.createHttpsServer()` instead of directly instantiating this class.
      */
@@ -178,3 +183,4 @@ export class Server extends ws.Server {
         return new this({ server: server });
     }
 }
+exports.Server = Server;

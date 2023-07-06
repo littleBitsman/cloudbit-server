@@ -3,7 +3,6 @@
   "version": "0.2.3-alpha",
   "description": "",
   "main": "dist/index",
-  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
