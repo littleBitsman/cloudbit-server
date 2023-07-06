@@ -92,6 +92,12 @@ class CloudBit extends node_events_1.EventEmitter {
         super.once(event, cb);
         return this;
     }
+    /**
+     * Internal function for Server.getCloudBitBySocket(). Doesn't have any use otherwise.
+     */
+    socketEquals(socket) {
+        return socket instanceof ws.WebSocket && socket == this.socket;
+    }
 }
 exports.CloudBit = CloudBit;
 /**
@@ -105,6 +111,7 @@ class Server extends ws.Server {
     constructor(options, callback) {
         super(options, callback);
         this.cloudbits = new Set();
+        this.events = ['input', 'output', 'heartbeat'];
         this.on('connection', (socket, req) => {
             const device_id = new URL(`wss://localhost:${req.socket.localPort}${req.url}`).searchParams.get('device_id');
             if (device_id == null)
@@ -141,6 +148,15 @@ class Server extends ws.Server {
         var cloudbit = undefined;
         this.cloudbits.forEach((value) => {
             if (value.device_id == deviceId && cloudbit == undefined) {
+                cloudbit = value;
+            }
+        });
+        return cloudbit;
+    }
+    getCloudBitBySocket(socket) {
+        var cloudbit = undefined;
+        this.cloudbits.forEach((value) => {
+            if (value.socketEquals(socket) && cloudbit == undefined) {
                 cloudbit = value;
             }
         });

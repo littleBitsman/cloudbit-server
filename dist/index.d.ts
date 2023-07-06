@@ -56,6 +56,10 @@ export declare class CloudBit extends EventEmitter {
      * @param cb Event listener callback.
      */
     once(event: 'input' | 'output' | 'heartbeat', cb: (this: CloudBit, data: any) => void): this;
+    /**
+     * Internal function for Server.getCloudBitBySocket(). Doesn't have any use otherwise.
+     */
+    socketEquals(socket: unknown): boolean;
 }
 /**
  * The CloudBit Server class.
@@ -63,6 +67,7 @@ export declare class CloudBit extends EventEmitter {
  */
 export declare class Server extends ws.Server {
     readonly cloudbits: Set<CloudBit>;
+    private readonly events;
     /**
      * The constructor for the Server class. It is recommended to call `Server.createServer()` or `Server.createHttpsServer()` instead of directly instantiating this class.
      */
@@ -73,6 +78,7 @@ export declare class Server extends ws.Server {
      * @returns A CloudBit object if it exists as a client of the web socket server. Otherwise, undefined.
      */
     getCloudBitByDeviceId(deviceId: string): CloudBit | void;
+    getCloudBitBySocket(socket: ws.WebSocket): void;
     /**
      * The recommended way to create a simple HTTP-based web socket server for CloudBits to connect to.
      * @param port The port number for the server to listen on. If none is specified, defaults to 3000.

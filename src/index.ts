@@ -33,7 +33,7 @@ export class CloudBit extends EventEmitter {
     readonly device_id: string
     private readonly socket: ws.WebSocket
     private inputValue: number = 0
-    private readonly events = [ 'input', 'output', 'heartbeat' ]
+    private readonly events = ['input', 'output', 'heartbeat']
     /**
      * The CloudBit constructor. Do not use this since the Server class already instantiates one for every new client on the Web Socket.
      */
@@ -91,6 +91,12 @@ export class CloudBit extends EventEmitter {
         super.once(event, cb)
         return this
     }
+    /**
+     * Internal function for Server.getCloudBitBySocket(). Doesn't have any use otherwise.
+     */
+    socketEquals(socket: unknown): boolean {
+        return socket instanceof ws.WebSocket && socket == this.socket
+    }
 }
 
 /**
@@ -99,6 +105,7 @@ export class CloudBit extends EventEmitter {
  */
 export class Server extends ws.Server {
     readonly cloudbits: Set<CloudBit> = new Set<CloudBit>()
+    private readonly events = ['input', 'output', 'heartbeat']
     /**
      * The constructor for the Server class. It is recommended to call `Server.createServer()` or `Server.createHttpsServer()` instead of directly instantiating this class.
      */
@@ -117,7 +124,7 @@ export class Server extends ws.Server {
                 try {
                     const json = JSON.parse(data.toString('utf-8'))
                     switch (json.type) {
-                        case 'input': 
+                        case 'input':
                             if (!isNaN(json.value)) {
                                 cb.setInput(json.value)
                             }
@@ -129,6 +136,7 @@ export class Server extends ws.Server {
             })
         })
     }
+
     /**
      * Gets a CloudBit object by the specified `deviceId`. If it does not exist, undefined is returned.
      * @param deviceId The device ID to search for.
@@ -143,6 +151,17 @@ export class Server extends ws.Server {
         })
         return cloudbit
     }
+
+    getCloudBitBySocket(socket: ws.WebSocket) {
+        var cloudbit: CloudBit | void = undefined
+        this.cloudbits.forEach((value) => {
+            if (value.socketEquals(socket) && cloudbit == undefined) {
+                cloudbit = value
+            }
+        })
+        return cloudbit
+    }
+
     /**
      * The recommended way to create a simple HTTP-based web socket server for CloudBits to connect to.
      * @param port The port number for the server to listen on. If none is specified, defaults to 3000.
