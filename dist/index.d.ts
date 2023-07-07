@@ -1,8 +1,6 @@
 /// <reference types="node" />
-/// <reference types="node" />
 import * as ws from 'ws';
 import * as https from 'https';
-import { EventEmitter } from 'node:events';
 interface ServerOptions extends https.ServerOptions {
     port: number;
 }
@@ -12,53 +10,7 @@ interface ServerOptions extends https.ServerOptions {
  * @returns A Server object.
  */
 export declare function createServer(options: ServerOptions | undefined): Server;
-/**
- * The CloudBit class that represents a CloudBit connected to the web socket server.
- * @class
- */
-export declare class CloudBit extends EventEmitter {
-    readonly device_id: string;
-    private readonly socket;
-    private inputValue;
-    /**
-     * The CloudBit constructor. Do not use this since the Server class already instantiates one for every new client on the Web Socket.
-     */
-    constructor(device_id: string, socket: ws.WebSocket);
-    /**
-     * Get the input value from the input BitSnap on this CloudBit.
-     * @returns The current value of the input.
-     */
-    getInputValue(): number;
-    /**
-     * This function exists to allow for changes from the physical CloudBit input to be mirrored here. Do not use this.
-     * @private
-     * @api private
-     */
-    setInput(value: number): void;
-    /**
-     * Sets the output value on this CloudBit to the `value`. This number should be in the range 0-99. Anything less than 0 will be truncated to 0, and anything greater than 99 will be truncated to 99.
-     * @param value The new output value.
-     * @async
-     */
-    setOutput(value: number): Promise<unknown>;
-    /**
-     * A function to listen to the events that the CloudBit client may emit.
-     * Note: If you listen to the Heartbeat event, do NOT send anything over the Socket connection.
-     * @param event Event to listen to.
-     * @param cb Event listener callback.
-     */
-    on(event: 'input' | 'output' | 'heartbeat' | string | symbol, cb: (this: CloudBit, data: any) => void): this;
-    /**
-     * A function to listen to the events that the CloudBit client may emit. The listener is called **once**. When the event is emitted, the listener is removed, then the callback is invoked.
-     * @param event Event to listen to.
-     * @param cb Event listener callback.
-     */
-    once(event: 'input' | 'output' | 'heartbeat' | string | symbol, cb: (this: CloudBit, data: any) => void): this;
-    /**
-     * Internal function for Server.getCloudBitBySocket(). Doesn't have any use otherwise.
-     */
-    socketEquals(socket: unknown): boolean;
-}
+import { CloudBit } from './cloudbit';
 /**
  * The CloudBit Server class.
  * @class

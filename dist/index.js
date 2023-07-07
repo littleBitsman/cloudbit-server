@@ -1,10 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Server = exports.CloudBit = exports.createServer = void 0;
+exports.Server = exports.createServer = void 0;
 const ws = require("ws");
 const http = require("http");
 const https = require("https");
-const node_events_1 = require("node:events");
 /**
  * The top level function to create a server quickly. If you want to create an HTTPS server, it is recommended to do so with `Server.createHttpsServer()`.
  * @param options Server options with a port option. If you do not specify a port or options, an HTTP server will be created. If the `options.key` and `options.cert` fields exist, an HTTPS server will be created.
@@ -25,78 +24,7 @@ function createServer(options) {
     }
 }
 exports.createServer = createServer;
-/**
- * The CloudBit class that represents a CloudBit connected to the web socket server.
- * @class
- */
-class CloudBit extends node_events_1.EventEmitter {
-    /**
-     * The CloudBit constructor. Do not use this since the Server class already instantiates one for every new client on the Web Socket.
-     */
-    constructor(device_id, socket) {
-        super();
-        this.inputValue = 0;
-        this.device_id = device_id;
-        this.socket = socket;
-    }
-    /**
-     * Get the input value from the input BitSnap on this CloudBit.
-     * @returns The current value of the input.
-     */
-    getInputValue() { return this.inputValue; }
-    /**
-     * This function exists to allow for changes from the physical CloudBit input to be mirrored here. Do not use this.
-     * @private
-     * @api private
-     */
-    setInput(value) {
-        this.inputValue = value;
-        this.emit('input', value);
-    }
-    /**
-     * Sets the output value on this CloudBit to the `value`. This number should be in the range 0-99. Anything less than 0 will be truncated to 0, and anything greater than 99 will be truncated to 99.
-     * @param value The new output value.
-     * @async
-     */
-    async setOutput(value) {
-        return new Promise((resolve, reject) => {
-            if (value < 0)
-                value = 0;
-            this.emit('output', value);
-            if (this.socket.readyState == 1)
-                resolve(this.socket.send(JSON.stringify({ type: 'output', value: value })));
-            else
-                reject('Socket is not open.');
-        });
-    }
-    // Events
-    /**
-     * A function to listen to the events that the CloudBit client may emit.
-     * Note: If you listen to the Heartbeat event, do NOT send anything over the Socket connection.
-     * @param event Event to listen to.
-     * @param cb Event listener callback.
-     */
-    on(event, cb) {
-        super.on(event, cb);
-        return this;
-    }
-    /**
-     * A function to listen to the events that the CloudBit client may emit. The listener is called **once**. When the event is emitted, the listener is removed, then the callback is invoked.
-     * @param event Event to listen to.
-     * @param cb Event listener callback.
-     */
-    once(event, cb) {
-        super.once(event, cb);
-        return this;
-    }
-    /**
-     * Internal function for Server.getCloudBitBySocket(). Doesn't have any use otherwise.
-     */
-    socketEquals(socket) {
-        return socket instanceof ws.WebSocket && socket == this.socket;
-    }
-}
-exports.CloudBit = CloudBit;
+const cloudbit_1 = require("./cloudbit");
 /**
  * The CloudBit Server class.
  * @class
@@ -115,7 +43,7 @@ class Server extends ws.Server {
                 return socket.close(4002);
             if (this.getCloudBitByDeviceId(device_id))
                 return socket.close(4002);
-            const cb = new CloudBit(device_id, socket);
+            const cb = new cloudbit_1.CloudBit(device_id, socket);
             this.cloudbits.add(cb);
             socket.once('open', () => {
                 socket.send(JSON.stringify({ type: 'Hello', heartbeat_interval: 30000 }));
