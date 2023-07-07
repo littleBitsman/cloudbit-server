@@ -32,7 +32,6 @@ export declare class CloudBit extends EventEmitter {
     getInputValue(): number;
     /**
      * This function exists to allow for changes from the physical CloudBit input to be mirrored here. Do not use this.
-     * @param value
      * @private
      * @api private
      */

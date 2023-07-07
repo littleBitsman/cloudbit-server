@@ -47,12 +47,12 @@ class CloudBit extends node_events_1.EventEmitter {
     getInputValue() { return this.inputValue; }
     /**
      * This function exists to allow for changes from the physical CloudBit input to be mirrored here. Do not use this.
-     * @param value
      * @private
      * @api private
      */
     setInput(value) {
         this.inputValue = value;
+        this.emit('input', value);
     }
     /**
      * Sets the output value on this CloudBit to the `value`. This number should be in the range 0-99. Anything less than 0 will be truncated to 0, and anything greater than 99 will be truncated to 99.
