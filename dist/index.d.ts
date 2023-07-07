@@ -48,13 +48,13 @@ export declare class CloudBit extends EventEmitter {
      * @param event Event to listen to.
      * @param cb Event listener callback.
      */
-    on(event: 'input' | 'output' | 'heartbeat', cb: (this: CloudBit, data: any) => void): this;
+    on(event: 'input' | 'output' | 'heartbeat' | string | symbol, cb: (this: CloudBit, data: any) => void): this;
     /**
      * A function to listen to the events that the CloudBit client may emit. The listener is called **once**. When the event is emitted, the listener is removed, then the callback is invoked.
      * @param event Event to listen to.
      * @param cb Event listener callback.
      */
-    once(event: 'input' | 'output' | 'heartbeat', cb: (this: CloudBit, data: any) => void): this;
+    once(event: 'input' | 'output' | 'heartbeat' | string | symbol, cb: (this: CloudBit, data: any) => void): this;
     /**
      * Internal function for Server.getCloudBitBySocket(). Doesn't have any use otherwise.
      */

@@ -76,8 +76,7 @@ export class CloudBit extends EventEmitter {
      * @param event Event to listen to.
      * @param cb Event listener callback.
      */
-    on(event: 'input' | 'output' | 'heartbeat', cb: (this: CloudBit, data: any) => void): this {
-        if (!this.events.includes(event)) throw new Error('Invalid event name.');
+    on(event: 'input' | 'output' | 'heartbeat' | string | symbol, cb: (this: CloudBit, data: any) => void): this {
         super.on(event, cb)
         return this
     }
@@ -86,8 +85,7 @@ export class CloudBit extends EventEmitter {
      * @param event Event to listen to.
      * @param cb Event listener callback.
      */
-    once(event: 'input' | 'output' | 'heartbeat', cb: (this: CloudBit, data: any) => void): this {
-        if (!this.events.includes(event)) throw new Error('Invalid event name.');
+    once(event: 'input' | 'output' | 'heartbeat' | string | symbol, cb: (this: CloudBit, data: any) => void): this {
         super.once(event, cb)
         return this
     }

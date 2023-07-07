@@ -76,8 +76,6 @@ class CloudBit extends node_events_1.EventEmitter {
      * @param cb Event listener callback.
      */
     on(event, cb) {
-        if (!this.events.includes(event))
-            throw new Error('Invalid event name.');
         super.on(event, cb);
         return this;
     }
@@ -87,8 +85,6 @@ class CloudBit extends node_events_1.EventEmitter {
      * @param cb Event listener callback.
      */
     once(event, cb) {
-        if (!this.events.includes(event))
-            throw new Error('Invalid event name.');
         super.once(event, cb);
         return this;
     }
