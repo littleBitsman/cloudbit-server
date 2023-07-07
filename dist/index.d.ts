@@ -20,7 +20,6 @@ export declare class CloudBit extends EventEmitter {
     readonly device_id: string;
     private readonly socket;
     private inputValue;
-    private readonly events;
     /**
      * The CloudBit constructor. Do not use this since the Server class already instantiates one for every new client on the Web Socket.
      */

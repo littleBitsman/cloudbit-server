@@ -33,7 +33,6 @@ export class CloudBit extends EventEmitter {
     readonly device_id: string
     private readonly socket: ws.WebSocket
     private inputValue: number = 0
-    private readonly events = ['input', 'output', 'heartbeat']
     /**
      * The CloudBit constructor. Do not use this since the Server class already instantiates one for every new client on the Web Socket.
      */
@@ -63,6 +62,7 @@ export class CloudBit extends EventEmitter {
      */
     async setOutput(value: number) {
         return new Promise((resolve, reject) => {
+            if (value < 0) value = 0
             this.emit('output', value)
             if (this.socket.readyState == 1) resolve(this.socket.send(JSON.stringify({ type: 'output', value: value })));
             else reject('Socket is not open.')

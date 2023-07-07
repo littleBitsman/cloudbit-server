@@ -36,7 +36,6 @@ class CloudBit extends node_events_1.EventEmitter {
     constructor(device_id, socket) {
         super();
         this.inputValue = 0;
-        this.events = ['input', 'output', 'heartbeat'];
         this.device_id = device_id;
         this.socket = socket;
     }
@@ -61,6 +60,8 @@ class CloudBit extends node_events_1.EventEmitter {
      */
     async setOutput(value) {
         return new Promise((resolve, reject) => {
+            if (value < 0)
+                value = 0;
             this.emit('output', value);
             if (this.socket.readyState == 1)
                 resolve(this.socket.send(JSON.stringify({ type: 'output', value: value })));
