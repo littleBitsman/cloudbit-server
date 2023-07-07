@@ -123,6 +123,7 @@ export class Server extends ws.Server {
             socket.on('message', (data) => {
                 try {
                     const json = JSON.parse(data.toString('utf-8'))
+                    console.log(json)
                     switch (json.type) {
                         case 'input':
                             if (!isNaN(json.value)) {
@@ -131,7 +132,7 @@ export class Server extends ws.Server {
                             break
                     }
                 } catch (err) {
-
+                    // TODO #3 make something here
                 }
             })
         })
