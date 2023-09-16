@@ -2,42 +2,47 @@ import * as ws from 'ws'
 import * as http from 'http'
 import * as https from 'https'
 import { CloudBit } from './cloudbit'
+import { EventEmitter } from 'node:events'
+
+export enum WebSocketOpcodes {
+    INPUT = 0x1,
+    OUTPUT = 0x2,
+    HELLO = 0x3,
+    HEARTBEAT = 0x4,
+    HEARTBEAT_ACK = 0x5
+}
 
 interface ServerOptions extends https.ServerOptions {
     port: number
 }
 
-/**
- * The CloudBit Server class.
- * @class
- */
-export class Server extends ws.Server {
+export class Server {
     readonly cloudbits: Set<CloudBit> = new Set<CloudBit>()
-    private readonly events = ['input', 'output', 'heartbeat']
+    private readonly EventStream = new EventEmitter()
+    private readonly WSS
     /**
      * The constructor for the Server class. It is recommended to call `Server.createServer()` or `Server.createHttpsServer()` instead of directly instantiating this class.
      */
     constructor(options?: ws.ServerOptions, callback?: () => void) {
-        super(options, callback)
-        this.on('connection', (socket, req) => {
-            const device_id = new URL(`wss://localhost:${req.socket.localPort}${req.url}`).searchParams.get('device_id')
-            if (device_id == null) return socket.close(4002)
-            if (this.getCloudBitByDeviceId(device_id)) return socket.close(4002)
-            const cb = new CloudBit(device_id, socket)
-            this.cloudbits.add(cb)
-            socket.once('open', () => {
-                socket.send(JSON.stringify({ type: 'Hello', heartbeat_interval: 30000 }))
+        this.WSS = new ws.Server(options, callback)
+        this.WSS.on('connection', (socket, req) => {
+            const deviceId = Array.from(this.cloudbits.keys()).length.toString()
+            const hbInterval = 30000 + Math.round(Math.random() * 100)
+            const cb = new CloudBit(deviceId, socket, hbInterval)
+            cb.once('close', () => {
+                this.cloudbits.delete(cb)
             })
+            this.cloudbits.add(cb)
+            socket.send(JSON.stringify({ 
+                opcode: WebSocketOpcodes.HELLO, 
+                heartbeat_interval: hbInterval, 
+                deviceId: deviceId
+            }))
             socket.on('message', (data) => {
                 try {
                     const json = JSON.parse(data.toString('utf-8'))
                     console.log(json)
-                    switch (json.type) {
-                        case 'input':
-                            if (!isNaN(json.value)) {
-                                cb.setInput(json.value)
-                            }
-                            break
+                    switch (json.opcode) {
                     }
                 } catch (err) {
                     // TODO #3 make something here
@@ -46,29 +51,30 @@ export class Server extends ws.Server {
         })
     }
 
+    on(event: 'connection', callback: (cloudbit: CloudBit) => void): this {
+        this.EventStream.on(event, callback)
+        return this
+    }
+
     /**
      * Gets a CloudBit object by the specified `deviceId`. If it does not exist, undefined is returned.
      * @param deviceId The device ID to search for.
      * @returns A CloudBit object if it exists as a client of the web socket server. Otherwise, undefined.
      */
-    getCloudBitByDeviceId(deviceId: string): CloudBit | void {
-        var cloudbit: CloudBit | void = undefined
-        this.cloudbits.forEach((value) => {
-            if (value.device_id == deviceId && cloudbit == undefined) {
-                cloudbit = value
-            }
-        })
-        return cloudbit
+    getCloudBitByDeviceId(deviceId: string): CloudBit | undefined {
+        try {
+            return Array.from(this.cloudbits.keys()).filter((cb) => cb.deviceId == deviceId)[0]
+        } catch {
+            return undefined
+        }
     }
 
     getCloudBitBySocket(socket: ws.WebSocket): CloudBit | void {
-        var cloudbit: CloudBit | void = undefined
-        this.cloudbits.forEach((value) => {
-            if (value.socketEquals(socket) && cloudbit == undefined) {
-                cloudbit = value
-            }
-        })
-        return cloudbit
+        try {
+            return Array.from(this.cloudbits.keys()).filter((cb) => cb.socketEquals(socket))[0]
+        } catch {
+            return undefined
+        }
     }
 
     /**
