@@ -9,9 +9,6 @@ export class CloudBit extends EventEmitter {
     readonly device_id: string
     private readonly socket: ws.WebSocket
     private inputValue: number = 0
-    /**
-     * The CloudBit constructor. Do not use this since the Server class already instantiates one for every new client on the Web Socket.
-     */
     constructor(device_id: string, socket: ws.WebSocket) {
         super()
         this.device_id = device_id

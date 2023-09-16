@@ -1,5 +1,4 @@
 import * as https from 'https'
-import { CloudBit } from './cloudbit'
 import { Server } from './server'
 
 interface ServerOptions extends https.ServerOptions {
@@ -26,6 +25,5 @@ function createServer(options: ServerOptions | undefined): Server {
 
 export = {
     Server: Server,
-    CloudBit: CloudBit,
     createServer: createServer
 }
