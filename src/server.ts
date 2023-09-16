@@ -38,16 +38,7 @@ export class Server {
                 heartbeat_interval: hbInterval, 
                 deviceId: deviceId
             }))
-            socket.on('message', (data) => {
-                try {
-                    const json = JSON.parse(data.toString('utf-8'))
-                    console.log(json)
-                    switch (json.opcode) {
-                    }
-                } catch (err) {
-                    // TODO #3 make something here
-                }
-            })
+            this.EventStream.emit('connection', cb)
         })
     }
 

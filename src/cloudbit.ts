@@ -35,6 +35,9 @@ export class CloudBit {
                 } else if (json.opcode == WebSocketOpcodes.HEARTBEAT) {
                     this.lastHeartbeat = Date.now()
                     this.eventStream.emit('heartbeat')
+                    this.socket.send(JSON.stringify({
+                        opcode: WebSocketOpcodes.HEARTBEAT_ACK
+                    }))
                 }
             } catch {
                 // TODO #3 new link lol
@@ -65,7 +68,7 @@ export class CloudBit {
             if (this.socket.readyState == 1) {
                 this.outputValue = value
                 this.eventStream.emit('output', value)
-                resolve(this.socket.send(JSON.stringify({ opcode: WebSocketOpcodes.OUTPUT, value: value })))
+                resolve(this.socket.send(JSON.stringify({ opcode: WebSocketOpcodes.OUTPUT, data: { value: value } })))
             } else reject('Socket is not open.')
         })
     }
