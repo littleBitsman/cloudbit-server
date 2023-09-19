@@ -104,7 +104,7 @@ export class Server {
      */
     static createHttpsServer(options: ServerOptions): Server {
         const server = https.createServer(options)
-        const ws = new this({ server: server })
+        const ws = new this({ ...options, port: undefined, server: server })
         server.listen(options.port | 3000, () => {
             console.log(`[INFO] Started CloudBit server over HTTPS on port ${options.port | 3000}`)
         })
