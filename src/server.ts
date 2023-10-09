@@ -3,18 +3,26 @@ import * as http from 'http'
 import * as https from 'https'
 import { CloudBit } from './cloudbit'
 import { EventEmitter } from 'node:events'
+import { PathLike } from 'fs'
 
 export enum WebSocketOpcodes {
     INPUT = 0x1,
     OUTPUT = 0x2,
     HELLO = 0x3,
-    HEARTBEAT = 0x4,
-    HEARTBEAT_ACK = 0x5
+    IDENTIFY = 0x4,
+    HEARTBEAT = 0x5,
+    HEARTBEAT_ACK = 0x6
 }
 
-interface ServerOptions extends https.ServerOptions {
-    port: number
+interface SaveOptions {
+    /**
+     * The path at which the JSON file containing data on identifying CloudBits by their MAC addresses will be
+     * read from and written to. Defaults to `cloudbits.json` placed in the directory containing `node_modules`.
+     */
+    filePath?: string | PathLike
 }
+
+interface ServerOptions extends https.ServerOptions, SaveOptions, ws.ServerOptions {}
 
 export class Server {
     readonly cloudbits: Set<CloudBit> = new Set<CloudBit>()
@@ -23,7 +31,7 @@ export class Server {
     /**
      * The constructor for the Server class. It is recommended to call `Server.createServer()` or `Server.createHttpsServer()` instead of directly instantiating this class.
      */
-    constructor(options?: ws.ServerOptions, callback?: () => void) {
+    constructor(options?: ServerOptions, callback?: () => void) {
         this.WSS = new ws.Server(options, callback)
         this.WSS.on('connection', (socket, req) => {
             const deviceId = Array.from(this.cloudbits.keys()).length.toString()
@@ -35,8 +43,7 @@ export class Server {
             this.cloudbits.add(cb)
             socket.send(JSON.stringify({ 
                 opcode: WebSocketOpcodes.HELLO, 
-                heartbeat_interval: hbInterval, 
-                deviceId: deviceId
+                heartbeat_interval: hbInterval
             }))
             this.EventStream.emit('connection', cb)
         })
@@ -105,8 +112,8 @@ export class Server {
     static createHttpsServer(options: ServerOptions): Server {
         const server = https.createServer(options)
         const ws = new this({ ...options, port: undefined, server: server })
-        server.listen(options.port | 3000, () => {
-            console.log(`[INFO] Started CloudBit server over HTTPS on port ${options.port | 3000}`)
+        server.listen(options.port || 3000, () => {
+            console.log(`[INFO] Started CloudBit server over HTTPS on port ${options.port || 3000}`)
         })
         return ws
     }
